@@ -3,7 +3,7 @@ A repo for building an Unoconv microservice Docker image
 
 ## Build
 
-Build the image with `build.sh`. Pass in your hostname as an argument (i.e. <hostname>/unoconv)
+Build the image with `build.sh`. Pass in your hostname as an argument (i.e. HOSTNAME/unoconv)
 
 ## Running
 
