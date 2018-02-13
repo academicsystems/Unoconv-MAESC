@@ -1,0 +1,4 @@
+#!/bin/bash
+
+spawn-fcgi -d /var/www -f /var/www/server.py -a 127.0.0.1 -p 5555
+nginx -g 'daemon off;'
