@@ -4,7 +4,9 @@ import cgi
 import json
 import mimetypes
 import os
+import random
 import shutil
+import string
 import subprocess
 import time
 import web
@@ -25,21 +27,29 @@ class Main:
         
         # execute
         try:
+            if not os.path.isfile("/var/www/tmp/" + data['input']):
+                raise web.NotFound(data['input'] + " not found, did you upload it yet? or is your volume attached correctly?")
+            
+            output = ''
+            
             cmd = 'unoconv '
             for arg in data['cmd']:
                 if arg == 'INPUT':
                     cmd += " /var/www/tmp/" + data['input'] + " "
-                elif arg == 'OUTPUT':
-                    cmd += " /var/www/tmp/" + ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + " "
+                elif arg[:6] == 'OUTPUT':
+                    output = ''.join(random.choice(string.ascii_lowercase) for _ in range(10)) + arg[6:]
+                    cmd += " /var/www/tmp/" + output + " "
                 else:
                     cmd += arg
+            
+            yield cmd + "\n"
             
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
             line = process.stdout.readline()
             while line:
                 yield str(line)
                 line = process.stdout.readline()
-            yield 'done'
+            yield 'DONE: ' + output
         except Exception as e:
             yield cgi.escape(str(e))
 
@@ -48,8 +58,8 @@ class Upload:
         try:
             with open("/var/www/tmp/" + path,"wb") as f:
                 f.write(web.data())
-        except ValueError:
-            raise web.HTTPError.__init__(self, 413, {}, '')
+        except Exception as e:
+            raise web.InternalError(str(e))
 
 class TestConnection:
     def GET(self):

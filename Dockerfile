@@ -10,6 +10,10 @@ RUN apt-get install -y nginx spawn-fcgi python python-setuptools xz-utils wget u
 
 COPY assets/localhost.conf /etc/nginx/sites-available/localhost.conf
 
+RUN sed -i '0,/##/{s/##/##\nclient_max_body_size 10000M;/}' /etc/nginx/nginx.conf
+RUN rm /etc/nginx/sites-enabled/default
+RUN rm /etc/nginx/sites-available/default
+
 RUN rm -rf /var/www/html/
 RUN ln -s /etc/nginx/sites-available/localhost.conf /etc/nginx/sites-enabled/localhost.conf
 
